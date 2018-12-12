@@ -85,7 +85,7 @@ vars = [t_2 t_3 t_4 t_5 t_6 t_7];
 init_guess = [t_2_0, t_3_0, t_4_0, t_5_0, t_6_0, t_7_0];
 
 
-n = 60;  % number of evaluations
+n = 30;  % number of evaluations
 upper_angle_limit = 3.05; % 3.122
 lower_angle_limit = -0.95; % 1.5
 input_angles = linspace(upper_angle_limit, lower_angle_limit, n);
@@ -127,32 +127,34 @@ fprintf('-- Finished in %.2fs \n', t)
 
 % calculate pivots
 pivots = calculate_pivots(joint_angles, link_lengths, link_angles);
-end_effector = pivots(:, 11, 2);
+y = pivots(:, 11, 2);
 % visualize pivots
-visualize_leg(pivots)
+% visualize_leg(pivots)
 
 % approximate jacobian
-% [fk_spline, gof] = spline_fit(input_angles.', end_effector, true);
-
-fk_spline = interp1(input_angles.', end_effector, 'spline', 'pp'); %#ok<*INTRPP>
-fk_spline_der = fnder(fk_spline, 1);
-slopes = ppval(fk_spline, input_angles.');
-slopes_der = ppval(fk_spline_der, input_angles.');
-figure('Name', 'Spline fit')
-plot(input_angles.', slopes)
-grid on
+jacobian = diff(y) ./ diff(input_angles.');
 
 
-figure('Name', 'Spline derivative')
-plot(input_angles.', slopes_der)
-grid on
+% write forward kinematics to file
+forward_kinematics_file = 'forward_kinematics.csv';
+fk_header = ['theta',',', 'y'];
+fid = fopen(forward_kinematics_file, 'w');
+fprintf(fid, '%s\r', fk_header);
+fclose(fid);
+dlmwrite(forward_kinematics_file, [input_angles.', y],'-append','delimiter',',','roffset', 0,'coffset',0);
 
-fk_spline_test = ppdiff(fk_spline, 1);
-slopes_test = ppval(fk_spline_test, input_angles.');
-figure('Name', 'Spline fit der test')
-plot(input_angles.', slopes_test)
-grid on
+% write jacobian to file
+differential_kinematics_file = 'differential_kinematics.csv';
+dk_header = ['theta', ',', 'J(theta)'];
+fid = fopen(differential_kinematics_file, 'w');
+fprintf(fid, '%s\r', dk_header);
+fclose(fid);
+dlmwrite(differential_kinematics_file, [input_angles(1:end-1).', jacobian],'-append','delimiter',',','roffset', 0,'coffset',0);
 
-% derivate spline
-% fk_spline_der = fnder(fk_spline, 1);
-
+% write leg geometry to file
+leg_geometry_file = 'leg_geometry.csv';
+geometry_header = ['x', ',', 'y'];
+fid = fopen(leg_geometry_file, 'w');
+fprintf(fid, '%s\r', geometry_header);
+fclose(fid);
+dlmwrite(leg_geometry_file, [A; B; C; D; F; G; H; K; L; M; P_0],'-append','delimiter',',','roffset', 0,'coffset',0);
