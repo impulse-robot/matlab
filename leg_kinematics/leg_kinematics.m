@@ -128,8 +128,9 @@ fprintf('-- Finished in %.2fs \n', t)
 % calculate pivots
 pivots = calculate_pivots(joint_angles, link_lengths, link_angles);
 y = pivots(:, 11, 2);
+
 % visualize pivots
-% visualize_leg(pivots)
+visualize_leg(pivots)
 
 % approximate jacobian
 jacobian = diff(y) ./ diff(input_angles.');
