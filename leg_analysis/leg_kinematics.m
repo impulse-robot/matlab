@@ -7,6 +7,8 @@
 %  Modulating Jumping Monopod paper)
 close all; clear; clc
 
+run_visualization = false;
+
 A = [-0.024330, -0.015363];
 B = [0, 0]; % origin
 C = [0.038243, 0.011044];
@@ -85,9 +87,9 @@ vars = [t_2 t_3 t_4 t_5 t_6 t_7];
 init_guess = [t_2_0, t_3_0, t_4_0, t_5_0, t_6_0, t_7_0];
 
 
-n = 30;  % number of evaluations
+n = 300;  % number of evaluations
 upper_angle_limit = 3.05; % 3.122
-lower_angle_limit = -0.95; % 1.5
+lower_angle_limit = -1.0; % 1.5
 input_angles = linspace(upper_angle_limit, lower_angle_limit, n);
 joint_angles = zeros(n, 7);
 
@@ -130,7 +132,9 @@ pivots = calculate_pivots(joint_angles, link_lengths, link_angles);
 y = pivots(:, 11, 2);
 
 % visualize pivots
-visualize_leg(pivots)
+if run_visualization
+    visualize_leg(pivots)
+end
 
 % approximate jacobian
 jacobian = diff(y) ./ diff(input_angles.');
