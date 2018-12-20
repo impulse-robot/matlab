@@ -1,4 +1,4 @@
-## Leg analysis
+# Leg analysis
 The following scripts analyse the leg geometry.
 They were tested in  Matlab R2018a.
 

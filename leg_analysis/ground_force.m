@@ -14,12 +14,8 @@ function [f] = ground_force(y, y_dot)
 % MAT-files required: none   
 
     if (y < evalin('base', 'y_max'))
-        forward_kinematics = evalin('base', 'forward_kinematics');
-        differential_kinematics = evalin('base', 'differential_kinematics');
-        jacobian = interp1(differential_kinematics(:,1), ...
-        differential_kinematics(:,2), interp1(forward_kinematics(:, 2), ...
-        forward_kinematics(:, 1), y));
-        f = (evalin('base', 'i') * torque_curve(y_dot / jacobian)) / jacobian;
+        i = evalin('base', 'i');
+        f = (i * torque_curve(get_theta_dot(y, y_dot) * i)) / get_jacobian(y);
     else
         f = 0;
     end

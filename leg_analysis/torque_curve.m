@@ -1,9 +1,10 @@
-function [tau] = torque_curve(rpm)
+function [tau] = torque_curve(omega_dot)
 %TORQUE_CURVE - Models the torque rpm curve
-% Syntax:  tau = torque_curve(rpm)
+% Syntax:  tau = torque_curve(theta_dot)
 %
 % Inputs:
-%    rpm - rotations per minute of motor []
+%    omega_dot - rotational velocity of motor shaft [rad/s]
+%                = theta_dot / i
 %
 % Outputs:
 %    tau - motor output torque
@@ -13,7 +14,13 @@ function [tau] = torque_curve(rpm)
 % MAT-files required: none   
 
 % TODO determine motor torque curve
-tau = 0.2;
-
+max_torque = evalin('base', 'tau'); % [Nm]
+max_power = 600; % [W]
+if ((omega_dot * max_torque) < max_power)
+    tau = max_torque;
+else
+    tau = max_power / omega_dot;
+end
+    
 end
 

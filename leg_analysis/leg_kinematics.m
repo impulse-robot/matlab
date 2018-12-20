@@ -87,7 +87,7 @@ vars = [t_2 t_3 t_4 t_5 t_6 t_7];
 init_guess = [t_2_0, t_3_0, t_4_0, t_5_0, t_6_0, t_7_0];
 
 
-n = 300;  % number of evaluations
+n = 600;  % number of evaluations
 upper_angle_limit = 3.05; % 3.122
 lower_angle_limit = -1.0; % 1.5
 input_angles = linspace(upper_angle_limit, lower_angle_limit, n);
