@@ -1,7 +1,7 @@
 %% Script to determine specs of gear wheels
 %% writen by Pascal Schoppmann, 20.12.2018, Arosa
 
-close all, clear all, clc;
+close all, clear all, clc
 
 %% Input Parameters
 
@@ -10,20 +10,11 @@ B = 6; %Zahnbreite
 L = 16; %Totale Länge
 H = 44; %Durchmesser Flansch
 P = 4; %Durchmesser Bohrung
+density = 7700; % Dichte des materials kg/mm^3
 
-prompt = {'Teilkreisdurchmesser','Zahnbreite','Eingabe Länge (Total)','Durchmesser Flansch','Durchmesser Bohrung'};
-dlg_title = 'Eingabe Zanhrad';
-num_lines = 1;
-def = {'','','','',''};
-answer = inputdlg(prompt, dlg_title, num_lines, def);
+volume = pi * (D/2)^2 * B + pi * (H/2)^2 * (L-B) - pi * (P/2)^2 * L;
+volume = volume / 1000^3; % convertion to mm^3
+weight = volume*density;
 
-D = str2num(answer(1));
-B = str2num(answer(2));
-L = str2num(answer(3));
-H = str2num(answer(4));
-P = str2num(answer(5));
-
-result = 1;
-
-weight = msgbox(["Gewicht Zahnrad = ', num2str(result)]);
+disp(['Gewicht des Zahnrades = ', num2str(weight)]);
 
