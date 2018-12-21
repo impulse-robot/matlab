@@ -16,6 +16,7 @@ function [] = visualize_leg(pivots)
 % MAT-files required: none
 
 end_effector = [];
+scaling = evalin('base', 'scaling');
 
 figure('Name', 'Leg Visualization')
 
@@ -82,8 +83,8 @@ for row = 1:size(pivots, 1)
     xlabel('x[m]')
     ylabel('y[m]')
     axis equal
-    xlim([-0.15, 0.15])
-    ylim([-0.25, 0.05])
+    xlim([-0.15 * scaling, 0.15 * scaling])
+    ylim([-0.25 * scaling, 0.05 * scaling])
     grid on
     pause(0.001)
 
@@ -160,8 +161,8 @@ for row = 1:size(pivots, 1)
     xlabel('x[m]')
     ylabel('y[m]')
     axis equal
-    xlim([-0.15, 0.15])
-    ylim([-0.25, 0.05])
+    xlim([-0.15 * scaling, 0.15 * scaling])
+    ylim([-0.25 * scaling, 0.05 * scaling])
     grid on
     pause(0.001)
     

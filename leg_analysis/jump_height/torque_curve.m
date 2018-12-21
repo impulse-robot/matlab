@@ -15,11 +15,15 @@ function [tau] = torque_curve(omega_dot)
 
 % TODO determine motor torque curve
 max_torque = evalin('base', 'tau'); % [Nm]
-max_power = 600; % [W]
+max_power = 300; % [W]
 if ((omega_dot * max_torque) < max_power)
     tau = max_torque;
 else
     tau = max_power / omega_dot;
+end
+
+if (60 * omega_dot / (2*pi) > 25000)
+        tau = 0;
 end
     
 end

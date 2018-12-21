@@ -7,32 +7,34 @@
 
 close all; clear; clc
 
-tau = 0.2; % main motor torque output [Nm]
+tau = 0.1; % main motor torque output [Nm]
 i = 25; % transmission []
 m = 0.4; % overall mass of the robot [kg]
 g = 9.81; % gravity [m/s^2]
 dt = 0.0001; % time step [s]
+theta_0 = 3.08; % starting output angle [rad]
 
 %% Kinematics filesfgfg
 % check if kinamtics files exist
-if (~isfile('forward_kinematics.csv') || ~isfile('differential_kinematics.csv'))
+if (~isfile('../data/forward_kinematics.csv') || ~isfile('../data/differential_kinematics.csv'))
     disp('-- Did not find forward_kinematics and / or differential_kinematics file')
     disp('-- Running leg_kinemtics script...')
-    run('leg_kinematics.m')
+    run('../leg_kinematics/leg_kinematics.m')
     close all; clear; clc
     disp('-- leg_kinematics script finished.')
 end
 
 % Read in forward and differential kinematics
-forward_kinematics = csvread('forward_kinematics.csv', 1, 0);
-differential_kinematics = csvread('differential_kinematics.csv', 1, 0);
+forward_kinematics = csvread('../data/forward_kinematics.csv', 1, 0);
+differential_kinematics = csvread('../data/differential_kinematics.csv', 1, 0);
 
 % Account for different coordinate frame in y
 forward_kinematics(:, 2) = - forward_kinematics(:, 2);
 
 %% Solve differential equation using eulers method
 % initial conditions
-y_0 = forward_kinematics(1, 2);
+
+y_0 = interp1(forward_kinematics(:, 1), forward_kinematics(:, 2), theta_0);
 y_max = forward_kinematics(end, 2) - 0.01;
 y_dot_0 = 0;
 y_dot_dot_0 = 0;
