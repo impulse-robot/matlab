@@ -6,7 +6,7 @@
 % (from Design Exploration and Kinematic Tuning of a Power
 %  Modulating Jumping Monopod paper)
 
-close all; clear; clc
+close all; clear; clc;
 
 run_visualization = false;
 
