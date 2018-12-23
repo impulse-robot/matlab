@@ -7,14 +7,18 @@
 
 close all; clear; clc
 
-tau = 0.1; % main motor torque output [Nm]
-i = 25; % transmission []
+tau = 0.15; % main motor torque output [Nm]
+i = 26.666; % transmission []
 m = 0.4; % overall mass of the robot [kg]
 g = 9.81; % gravity [m/s^2]
 dt = 0.0001; % time step [s]
-theta_0 = 3.08; % starting output angle [rad]
+theta_0 = 3.0; % starting output angle [rad]
+u_cell = 4.2; % cell voltage [V] 
+n_cell = 4.2; % number of cells []
+m_type = 2; % motor type, 1 = F80, 2 = F40
 
-%% Kinematics filesfgfg
+%% Kinematics files
+
 % check if kinamtics files exist
 if (~isfile('../data/forward_kinematics.csv') || ~isfile('../data/differential_kinematics.csv'))
     disp('-- Did not find forward_kinematics and / or differential_kinematics file')
@@ -71,7 +75,8 @@ while true
     jacobian = [jacobian, get_jacobian(y(j))];
     
     if (y(j) < y_max)
-        torque_next = torque_curve(get_theta_dot(y(j), y_dot(j)) * i);
+        torque_next = drehmomentKorrektur(tau, get_theta_dot(y(j), ...
+            y_dot(j)) * i, u_cell, n_cell, m_type);
     else
         torque_next = 0;
     end
@@ -95,6 +100,7 @@ rpm = i * 60 * theta_dot / (2 * pi);
 
 % get max jumping height and max velocity
 [jumping_height, jumping_height_idx] = max(y);
+[y_max_diff, y_max_idx] = min(abs(y - y_max));
 [max_velocity, max_velocity_idx] = max(y_dot);
 [max_acceleration, max_acceleration_idx] = max(y_dot_dot);
 [max_ground_force, max_ground_force_idx] = max(reaction_force);
@@ -150,21 +156,21 @@ grid on;
 % plot motor mechanics
 figure('name', 'Motor Mechanics');
 subplot(2, 3, 1);
-plot(t(1:max_velocity_idx), torque(1:max_velocity_idx), 'LineWidth', 3);
+plot(t(1:y_max_idx), torque(1:y_max_idx), 'LineWidth', 3);
 title('Motor Torque');
 ylabel('Torque [Nm]');
 xlabel('Time [s]');
 grid on;
 
 subplot(2, 3, 4)
-plot(stroke(1:max_velocity_idx), torque(1:max_velocity_idx), 'LineWidth', 3);
+plot(stroke(1:y_max_idx), torque(1:y_max_idx), 'LineWidth', 3);
 title('Motor Torque');
 ylabel('Torque [Nm]');
 xlabel('Stroke [m]');
 grid on;
 
 subplot(2, 3, 2)
-plot(t(1:max_velocity_idx), rpm(1:max_velocity_idx), 'LineWidth', 3);
+plot(t(1:y_max_idx), rpm(1:y_max_idx), 'LineWidth', 3);
 hold on;
 scatter(t(max_rpm_idx), max_rpm, 50, 'LineWidth', 2);
 txt = {'Max RPM:', ['rpm = ', num2str(max_rpm)]};
@@ -175,21 +181,21 @@ xlabel('Time [s]');
 grid on;
 
 subplot(2, 3, 5)
-plot(stroke(1:max_velocity_idx), rpm(1:max_velocity_idx), 'LineWidth', 3);
+plot(stroke(1:y_max_idx), rpm(1:y_max_idx), 'LineWidth', 3);
 title('Motor RPM');
 ylabel('RPM []');
 xlabel('Stroke [m]');
 grid on;
 
 subplot(2, 3, 3)
-plot(t(1:max_velocity_idx), power(1:max_velocity_idx), 'LineWidth', 3);
+plot(t(1:y_max_idx), power(1:y_max_idx), 'LineWidth', 3);
 title('Motor Power');
 ylabel('Power [W]');
 xlabel('Time [s]');
 grid on;
 
 subplot(2, 3, 6)
-plot(stroke(1:max_velocity_idx), power(1:max_velocity_idx), 'LineWidth', 3);
+plot(stroke(1:y_max_idx), power(1:y_max_idx), 'LineWidth', 3);
 title('Motor Power');
 ylabel('Power [W]');
 xlabel('Stroke [m]');
@@ -199,14 +205,14 @@ grid on;
 % Mechanical Advantage
 figure('name', 'Mechanical Advantage');
 subplot(2, 1, 1);
-plot(t(1:max_velocity_idx), jacobian(1:max_velocity_idx).^(-1), 'LineWidth', 3);
+plot(t(1:y_max_idx), jacobian(1:y_max_idx).^(-1), 'LineWidth', 3);
 title('Jacobian Inverse');
 ylabel('MA [N/Nm]');
 xlabel('Time [s]');
 grid on;
 
 subplot(2, 1, 2);
-plot(stroke(1:max_velocity_idx), jacobian(1:max_velocity_idx).^(-1), 'LineWidth', 3);
+plot(stroke(1:y_max_idx), jacobian(1:y_max_idx).^(-1), 'LineWidth', 3);
 title('Jacobian Inverse');
 ylabel('MA [N/Nm]');
 xlabel('Stroke [m]');

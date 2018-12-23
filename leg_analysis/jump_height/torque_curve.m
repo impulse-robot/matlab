@@ -22,7 +22,7 @@ else
     tau = max_power / omega_dot;
 end
 
-if (60 * omega_dot / (2*pi) > 25000)
+if (60 * omega_dot / (2*pi) > 30000)
         tau = 0;
 end
     
