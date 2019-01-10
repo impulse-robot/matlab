@@ -144,18 +144,32 @@ F_L = sqrt(solutions(:, 7).^2 + solutions(:, 8).^2);
 F_K = solutions(:, 9);
 F_M = - F_K;
 F_A = sqrt(solutions(:, 10).^2 + solutions(:, 11).^2);
+F_f = solutions(:, 12);
 
 % calculate max forces in joints
-[F_F_max, F_F_max_idx] = max(abs(F_F));
-[F_H_max, F_H_max_idx] = max(abs(F_H));
-[F_D_max, F_D_max_idx] = max(abs(F_D));
-[F_G_max, F_G_max_idx] = max(F_G);
-[F_B_max, F_B_max_idx] = max(F_B);
-[F_C_max, F_C_max_idx] = max(F_C);
-[F_L_max, F_L_max_idx] = max(F_L);
-[F_K_max, F_K_max_idx] = max(F_K);
-[F_M_max, F_M_max_idx] = max(F_M);
-[F_A_max, F_A_max_idx] = max(F_A);
+[F_F_max_abs, F_F_max_idx] = max(abs(F_F));
+[F_H_max_abs, F_H_max_idx] = max(abs(F_H));
+[F_D_max_abs, F_D_max_idx] = max(abs(F_D));
+[F_G_max_abs, F_G_max_idx] = max(abs(F_G));
+[F_B_max_abs, F_B_max_idx] = max(abs(F_B));
+[F_C_max_abs, F_C_max_idx] = max(abs(F_C));
+[F_L_max_abs, F_L_max_idx] = max(abs(F_L));
+[F_K_max_abs, F_K_max_idx] = max(abs(F_K));
+[F_M_max_abs, F_M_max_idx] = max(abs(F_M));
+[F_A_max_abs, F_A_max_idx] = max(abs(F_A));
+[F_f_max_abs, F_f_max_idx] = max(abs(F_f));
+
+F_F_max = F_F(F_F_max_idx);
+F_H_max = F_H(F_H_max_idx);
+F_D_max = F_D(F_D_max_idx);
+F_G_max = F_G(F_G_max_idx);
+F_B_max = F_B(F_B_max_idx);
+F_C_max = F_C(F_C_max_idx);
+F_L_max = F_L(F_L_max_idx);
+F_K_max = F_K(F_K_max_idx);
+F_M_max = F_M(F_M_max_idx);
+F_A_max = F_A(F_A_max_idx);
+F_f_max = F_f(F_f_max_idx);
 
 % visualize forces
 figure('name', 'Crank Forces')
@@ -274,7 +288,7 @@ grid on;
 
 
 figure('name', 'Foot Forces')
-subplot(2, 1, 1);
+subplot(3, 1, 1);
 plot(P_0(:, 2), F_M, 'LineWidth', 3);
 hold on;
 scatter(P_0(F_M_max_idx, 2), F_M_max, 50, 'LineWidth', 2);
@@ -285,13 +299,24 @@ ylabel('Force [N]');
 xlabel('Stroke [m]');
 grid on;
 
-subplot(2, 1, 2);
+subplot(3, 1, 2);
 plot(P_0(:, 2), F_L, 'LineWidth', 3);
 hold on;
 scatter(P_0(F_L_max_idx, 2), F_L_max, 50, 'LineWidth', 2);
 txt = {'Max Force:', ['F\_max = ', num2str(F_L_max), 'N']};
 text(P_0(F_L_max_idx, 2), F_L_max, txt, 'FontSize', 12);
 title('Joint L')
+ylabel('Force [N]');
+xlabel('Stroke [m]');
+grid on;
+
+subplot(3, 1, 3);
+plot(P_0(:, 2), F_f, 'LineWidth', 3);
+hold on;
+scatter(P_0(F_f_max_idx, 2), F_f_max, 50, 'LineWidth', 2);
+txt = {'Max Force:', ['F\_max = ', num2str(F_f_max), 'N']};
+text(P_0(F_L_max_idx, 2), F_f_max, txt, 'FontSize', 12);
+title('Foot')
 ylabel('Force [N]');
 xlabel('Stroke [m]');
 grid on;
