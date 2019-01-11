@@ -2,6 +2,8 @@
 % Author:   Alex Dietsche
 % Date: 19/12/2018
 
+% REMARK: writing to xlsx will probably not work on a mac
+
 %% Parameters
 
 close all; clear; clc
@@ -146,6 +148,30 @@ F_M = - F_K;
 F_A = sqrt(solutions(:, 10).^2 + solutions(:, 11).^2);
 F_f = solutions(:, 12);
 
+% calculate force components
+F_F_x = F_F .* cos(theta_2);
+F_F_y = F_F .* sin(theta_2);
+F_H_x = - F_F_x;
+F_H_y = - F_F_y;
+F_D_x = F_D .* cos(theta_7);
+F_D_y = F_D .* sin(theta_7);
+F_G_x = - F_D_x;
+F_G_y = - F_D_y;
+F_B_x = solutions(:, 3);
+F_B_y = solutions(:, 4);
+F_C_x = solutions(:, 5);
+F_C_y = solutions(:, 6);
+F_L_x = solutions(:, 7);
+F_L_y = solutions(:, 8);
+F_K_x = F_K .* cos(theta_5);
+F_K_y = F_K .* sin(theta_5);
+F_M_x = - F_K_x;
+F_M_y = - F_K_y;
+F_A_x = solutions(:, 10);
+F_A_y = solutions(:, 11);
+F_f_x = zeros(number_of_evaluations, 1);
+F_f_y = F_f;
+
 % calculate max forces in joints
 [F_F_max_abs, F_F_max_idx] = max(abs(F_F));
 [F_H_max_abs, F_H_max_idx] = max(abs(F_H));
@@ -171,7 +197,44 @@ F_M_max = F_M(F_M_max_idx);
 F_A_max = F_A(F_A_max_idx);
 F_f_max = F_f(F_f_max_idx);
 
-% visualize forces
+
+%% Store forces
+
+% sample joint forces
+n = 10; % max number of samples
+delimiter = floor(number_of_evaluations / n);
+
+
+
+filename = 'joint_forces.xlsx';
+header = {'Joint Forces [N]', 'F_F_x', 'F_F_y', 'F_H_x', 'F_H_y', 'F_D_x', 'F_D_y', ...
+    'F_G_x', 'F_G_y', 'F_B_x', 'F_B_y', 'F_C_x', 'F_C_y', ... 
+    'F_L_x', 'F_L_y', 'F_K_x', 'F_K_y', 'F_M_x', 'F_M_y', ...
+    'F_A_x', 'F_A_y', 'F_f_x', 'F_f_y'};
+xlswrite(filename, header', 1, 'A1');
+
+force_data = [F_F_x, F_F_y, F_H_x, F_H_y, F_D_x, F_D_y, F_G_x, F_G_y, ... 
+    F_B_x, F_B_y, F_C_x, F_C_y, F_L_x, F_L_y, F_K_x, F_K_y, F_M_x, F_M_y,...
+    F_A_x, F_A_y, F_f_x, F_f_y];
+
+force_data_sampled = force_data(1:delimiter:end, :);
+
+xlswrite(filename, force_data_sampled', 1, 'B2');
+
+header_max = {'Max abs. Forces [N]', 'F_F', 'F_H', 'F_D', 'F_G', 'F_B', 'F_C', ...
+    'F_L', 'F_K', 'F_M', 'F_A', 'F_f'};
+
+force_max_data = [F_F_max_abs, F_H_max_abs, F_D_max_abs, F_G_max_abs, ...
+    F_B_max_abs, F_C_max_abs, F_L_max_abs, F_K_max_abs, F_M_max_abs, ...
+    F_A_max_abs, F_f_max_abs];
+
+force_max_data_sampled = force_max_data(1:delimiter:end, :);
+
+xlswrite(filename, header_max', 1, 'A25');
+xlswrite(filename, force_max_data_sampled', 1, 'B26');
+
+    
+%% visualize forces
 figure('name', 'Crank Forces')
 subplot(3, 1, 1);
 plot(P_0(:, 2), F_F, 'LineWidth', 3);
