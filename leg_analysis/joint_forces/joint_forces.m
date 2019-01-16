@@ -14,7 +14,7 @@ theta_0 = 3.0; % starting output angle [rad]
 take_off_extension = 0.13; % extension at which no more torque is produced [m]
 number_of_evaluations = 60;
 
-if ~isfile('../data/leg_geometry_stroke.csv') 
+if (~isfile('../data/leg_geometry_stroke.csv') || ~isfile('../data/leg_geometry.csv'))
     disp('-- Did not find leg_geometry file')
     disp('-- Running leg_kinemtics script...')
     run('../leg_kinematics/leg_kinematics.m')
@@ -22,42 +22,43 @@ if ~isfile('../data/leg_geometry_stroke.csv')
     disp('-- leg_kinematics script finished.')
 end
 
-leg_geometry = csvread('../data/leg_geometry_stroke.csv', 1, 0);
+leg_geometry_stroke = csvread('../data/leg_geometry_stroke.csv', 1, 0);
+leg_geometry_cad = csvread('../data/leg_geometry.csv', 1, 0);
 
-leg_geometry(:, 22) = -leg_geometry(:, 22);
+leg_geometry_stroke(:, 22) = -leg_geometry_stroke(:, 22);
 
 % ignore entries high rpm 
-[start_val, idx_start] = min(abs(leg_geometry(:, 23) - theta_0));
-leg_geometry = leg_geometry(idx_start:end, :);
-[end_val, idx_end] = min(abs(leg_geometry(:, 22) - (leg_geometry(1, 22) + take_off_extension)));
-leg_geometry = leg_geometry(1:idx_end, :);
+[start_val, idx_start] = min(abs(leg_geometry_stroke(:, 23) - theta_0));
+leg_geometry_stroke = leg_geometry_stroke(idx_start:end, :);
+[end_val, idx_end] = min(abs(leg_geometry_stroke(:, 22) - (leg_geometry_stroke(1, 22) + take_off_extension)));
+leg_geometry_stroke = leg_geometry_stroke(1:idx_end, :);
 
 % downsample entries
-number_of_entries = size(leg_geometry, 1);
+number_of_entries = size(leg_geometry_stroke, 1);
 idx = 1:number_of_entries;
 idxq = linspace(min(idx), max(idx), number_of_evaluations);
-leg_geometry = interp1(idx, leg_geometry, idxq, 'linear');
+leg_geometry_stroke = interp1(idx, leg_geometry_stroke, idxq, 'linear');
 
 
-A = [leg_geometry(:, 1), leg_geometry(:, 2)];
-B = [leg_geometry(:, 3), leg_geometry(:, 4)];
-C = [leg_geometry(:, 5), leg_geometry(:, 6)];
-D = [leg_geometry(:, 7), leg_geometry(:, 8)];
-F = [leg_geometry(:, 9), leg_geometry(:, 10)];
-G = [leg_geometry(:, 11), leg_geometry(:, 12)];
-H = [leg_geometry(:, 13), leg_geometry(:, 14)];
-K = [leg_geometry(:, 15), leg_geometry(:, 16)];
-L = [leg_geometry(:, 17), leg_geometry(:, 18)];
-M = [leg_geometry(:, 19), leg_geometry(:, 20)];
-P_0 = [leg_geometry(:, 21), leg_geometry(:, 22)];
+A = [leg_geometry_stroke(:, 1), leg_geometry_stroke(:, 2)];
+B = [leg_geometry_stroke(:, 3), leg_geometry_stroke(:, 4)];
+C = [leg_geometry_stroke(:, 5), leg_geometry_stroke(:, 6)];
+D = [leg_geometry_stroke(:, 7), leg_geometry_stroke(:, 8)];
+F = [leg_geometry_stroke(:, 9), leg_geometry_stroke(:, 10)];
+G = [leg_geometry_stroke(:, 11), leg_geometry_stroke(:, 12)];
+H = [leg_geometry_stroke(:, 13), leg_geometry_stroke(:, 14)];
+K = [leg_geometry_stroke(:, 15), leg_geometry_stroke(:, 16)];
+L = [leg_geometry_stroke(:, 17), leg_geometry_stroke(:, 18)];
+M = [leg_geometry_stroke(:, 19), leg_geometry_stroke(:, 20)];
+P_0 = [leg_geometry_stroke(:, 21), leg_geometry_stroke(:, 22)];
 
-theta_1 = leg_geometry(:, 23);
-theta_2 = leg_geometry(:, 24);
-theta_3 = leg_geometry(:, 25);
-theta_4 = leg_geometry(:, 26);
-theta_5 = leg_geometry(:, 27);
-theta_6 = leg_geometry(:, 28);
-theta_7 = leg_geometry(:, 29);
+theta_1 = leg_geometry_stroke(:, 23);
+theta_2 = leg_geometry_stroke(:, 24);
+theta_3 = leg_geometry_stroke(:, 25);
+theta_4 = leg_geometry_stroke(:, 26);
+theta_5 = leg_geometry_stroke(:, 27);
+theta_6 = leg_geometry_stroke(:, 28);
+theta_7 = leg_geometry_stroke(:, 29);
 
 
 %% Calculate joint forces
@@ -197,6 +198,45 @@ F_M_max = F_M(F_M_max_idx);
 F_A_max = F_A(F_A_max_idx);
 F_f_max = F_f(F_f_max_idx);
 
+
+%% Calculate link orientations and adjust forces accordingly
+
+A_0 = leg_geometry_cad(1, :);
+B_0 = leg_geometry_cad(2, :);
+C_0 = leg_geometry_cad(3, :);
+D_0 = leg_geometry_cad(4, :);
+F_0 = leg_geometry_cad(5, :);
+G_0 = leg_geometry_cad(6, :);
+H_0 = leg_geometry_cad(7, :);
+K_0 = leg_geometry_cad(8, :);
+L_0 = leg_geometry_cad(9, :);
+M_0 = leg_geometry_cad(10, :);
+
+% initial orientation of links(as in CAD drawings)
+FB_0 = B_0-F_0;
+crank_angle_0 = atan2(FB_0(2), FB_0(1));
+
+HG_0 = G_0-H_0;
+shin_angle_0 = atan2(HG_0(2), HG_0(1));
+
+AK_0 = K_0-A_0;
+rod_angle_0 = atan2(AK_0(2), AK_0(1));
+
+ML_0 = L_0-M_0;
+foot_angle_0 = atan2(ML_0(2), ML_0(1));
+
+% angle difference from initial orientation
+FB = B-F;
+crank_angles_diff = atan2(FB(:, 2), FB(:, 1)) - crank_angle_0;
+
+HG = G-H;
+shin_angles_diff = atan2(HG(:, 2), HG(:, 1));
+
+AK = K-A;
+rod_angles_diff = atan2(AK(:, 2), AK(:, 1));
+
+ML = L-M;
+foot_angles_diff = atan2(ML(:, 2), ML(:, 1));
 
 %% Store forces
 
