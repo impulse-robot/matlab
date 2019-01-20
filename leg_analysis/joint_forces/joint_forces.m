@@ -230,13 +230,42 @@ FB = B-F;
 crank_angles_diff = atan2(FB(:, 2), FB(:, 1)) - crank_angle_0;
 
 HG = G-H;
-shin_angles_diff = atan2(HG(:, 2), HG(:, 1));
+shin_angles_diff = atan2(HG(:, 2), HG(:, 1)) - shin_angle_0;
 
 AK = K-A;
-rod_angles_diff = atan2(AK(:, 2), AK(:, 1));
+rod_angles_diff = atan2(AK(:, 2), AK(:, 1)) - rod_angle_0;
 
 ML = L-M;
-foot_angles_diff = atan2(ML(:, 2), ML(:, 1));
+foot_angles_diff = atan2(ML(:, 2), ML(:, 1)) - foot_angle_0;
+
+% adjust joint forces for orientation
+F_F_x_crank = F_F_x .* cos(-crank_angles_diff) - F_F_y .* sin(-crank_angles_diff);
+F_F_y_crank = F_F_x .* sin(-crank_angles_diff) + F_F_y .* cos(-crank_angles_diff);
+F_H_x_shin = F_H_x .* cos(-shin_angles_diff) - F_H_y .* sin(-shin_angles_diff);
+F_H_y_shin = F_H_x .* sin(-shin_angles_diff) + F_H_y .* cos(-shin_angles_diff);
+F_D_x_crank = F_D_x .* cos(-crank_angles_diff) - F_D_y .* sin(-crank_angles_diff);
+F_D_y_crank = F_D_x .* sin(-crank_angles_diff) + F_D_y .* cos(-crank_angles_diff);
+F_G_x_shin = F_G_x .* cos(-shin_angles_diff) - F_G_y .* sin(-shin_angles_diff);
+F_G_y_shin = F_G_x .* sin(-shin_angles_diff) + F_G_y .* cos(-shin_angles_diff);
+F_B_x_crank = F_B_x .* cos(-crank_angles_diff) - F_B_y .* sin(-crank_angles_diff);
+F_B_y_crank = F_B_x .* sin(-crank_angles_diff) + F_B_y .* cos(-crank_angles_diff);
+F_C_x_shin = F_C_x .* cos(-shin_angles_diff) - F_C_y .* sin(-shin_angles_diff);
+F_C_y_shin = F_C_x .* sin(-shin_angles_diff) + F_C_y .* cos(-shin_angles_diff);
+F_C_x_rod = -F_C_x_shin;
+F_C_y_rod = -F_C_y_shin;
+F_L_x_shin = F_L_x .* cos(-shin_angles_diff) - F_L_y .* sin(-shin_angles_diff);
+F_L_y_shin = F_L_x .* sin(-shin_angles_diff) + F_L_y .* cos(-shin_angles_diff);
+F_L_x_foot = -F_L_x_shin;
+F_L_y_foot = -F_L_y_shin;
+F_K_x_rod = F_K_x .* cos(-rod_angles_diff) - F_K_y .* sin(-rod_angles_diff);
+F_K_y_rod = F_K_x .* sin(-rod_angles_diff) + F_K_y .* cos(-rod_angles_diff);
+F_M_x_foot = F_M_x .* cos(-foot_angles_diff) - F_M_y .* sin(-foot_angles_diff);
+F_M_y_foot = F_M_x .* sin(-foot_angles_diff) + F_M_y .* cos(-foot_angles_diff);
+F_A_x_rod = F_A_x .* cos(-rod_angles_diff) - F_A_y .* sin(-rod_angles_diff);
+F_A_y_rod = F_A_x .* sin(-rod_angles_diff) + F_A_y .* cos(-rod_angles_diff);
+F_f_x_foot = F_f_x .* cos(-foot_angles_diff) - F_f_y .* sin(-foot_angles_diff);
+F_f_y_foot = F_f_x .* sin(-foot_angles_diff) + F_f_y .* cos(-foot_angles_diff);
+
 
 %% Store forces
 
@@ -244,18 +273,22 @@ foot_angles_diff = atan2(ML(:, 2), ML(:, 1));
 n = 10; % max number of samples
 delimiter = floor(number_of_evaluations / n);
 
-
-
 filename = 'joint_forces.xlsx';
-header = {'Joint Forces [N]', 'F_F_x', 'F_F_y', 'F_H_x', 'F_H_y', 'F_D_x', 'F_D_y', ...
-    'F_G_x', 'F_G_y', 'F_B_x', 'F_B_y', 'F_C_x', 'F_C_y', ... 
-    'F_L_x', 'F_L_y', 'F_K_x', 'F_K_y', 'F_M_x', 'F_M_y', ...
-    'F_A_x', 'F_A_y', 'F_f_x', 'F_f_y'};
+header = {'Joint Forces [N]', 'F_F_x_crank', 'F_F_y_crank', 'F_B_x_crank', ...
+    'F_B_y_crank', 'F_D_x_crank', 'F_D_y_crank', 'F_G_x_shin', 'F_G_y_shin', ...
+    'F_H_x_shin', 'F_H_y_shin', 'F_C_x_shin', 'F_C_y_shin', ...
+    'F_L_x_shin', 'F_L_y_shin', 'F_A_x_rod', 'F_A_y_rod',  ...
+    'F_K_x_rod', 'F_K_y_rod', 'F_C_x_rod', 'F_C_y_rod', ...
+    'F_M_x_foot', 'F_M_y_foot', 'F_L_x_foot', 'F_L_y_foot', ...
+    'F_f_x_foot', 'F_f_y_foot'};
 xlswrite(filename, header', 1, 'A1');
 
-force_data = [F_F_x, F_F_y, F_H_x, F_H_y, F_D_x, F_D_y, F_G_x, F_G_y, ... 
-    F_B_x, F_B_y, F_C_x, F_C_y, F_L_x, F_L_y, F_K_x, F_K_y, F_M_x, F_M_y,...
-    F_A_x, F_A_y, F_f_x, F_f_y];
+force_data = [F_F_x_crank, F_F_y_crank, F_B_x_crank, F_B_y_crank, ...
+    F_D_x_crank, F_D_y_crank, F_G_x_shin, F_G_y_shin, ...
+    F_H_x_shin, F_H_y_shin, F_C_x_shin, F_C_y_shin, ...
+    F_L_x_shin, F_L_y_shin, F_A_x_rod, F_A_y_rod, ...
+    F_K_x_rod, F_K_y_rod, F_C_x_rod, F_C_y_rod, F_M_x_foot, F_M_y_foot, ...
+    F_L_x_foot, F_L_y_foot, F_f_x_foot, F_f_y_foot, ];
 
 force_data_sampled = force_data(1:delimiter:end, :);
 
@@ -270,8 +303,8 @@ force_max_data = [F_F_max_abs, F_H_max_abs, F_D_max_abs, F_G_max_abs, ...
 
 force_max_data_sampled = force_max_data(1:delimiter:end, :);
 
-xlswrite(filename, header_max', 1, 'A25');
-xlswrite(filename, force_max_data_sampled', 1, 'B26');
+xlswrite(filename, header_max', 1, 'A29');
+xlswrite(filename, force_max_data_sampled', 1, 'B30');
 
     
 %% visualize forces
