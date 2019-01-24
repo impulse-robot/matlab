@@ -10,3 +10,6 @@ Run the script jump_height.m which will calculate the theoretical jumping height
 
 ## joint_forces
 Run the script joint_forces.m which will calculate the forces in each joint w.r.t to the world frame for different input angles, those forces are then written into a csv file.
+
+## collisions
+Run collisions.m script which will visualize the leg for different configurations using a slider. This visualization is used for the design process to avoid collisions. 
