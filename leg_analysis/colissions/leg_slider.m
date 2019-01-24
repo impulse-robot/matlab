@@ -83,8 +83,12 @@ function slider1_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 k = get(handles.slider1, 'Value');
-theta = 
-update_viualization(theta);
+[pivots, theta] = get_pivots(k);
+visualize_configuration(pivots);
+txt = sprintf('Theta: %.3f rad', theta);
+set(handles.text, 'String', txt);
+
+% update_viualization(theta);
 
 
 % --- Executes during object creation, after setting all properties.

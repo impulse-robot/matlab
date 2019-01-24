@@ -39,7 +39,7 @@ crank_link_lower = [[D(1); G(1)], [D(2); G(2)]];
 achilles_link = [[K(1); M(1)], [K(2); M(2)]];
 
 % plot terniary links
-clf;
+cla;
 crank_area = fill(crank(:, 1), crank(:, 2), 'b', 'LineWidth', 3);
 set(crank_area,'facealpha',.3)
 hold on
@@ -70,7 +70,7 @@ title('Leg Kinematics')
 xlabel('x[m]')
 ylabel('y[m]')
 axis equal
-xlim([-0.2, 0.2])
+xlim([-0.17, 0.17])
 grid on
 
 end
