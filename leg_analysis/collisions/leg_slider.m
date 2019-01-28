@@ -84,8 +84,9 @@ function slider1_Callback(hObject, eventdata, handles)
 
 k = get(handles.slider1, 'Value');
 [pivots, theta] = get_pivots(k);
+relative_angle_shin_rod = get_relative_angle(theta);
 visualize_configuration(pivots);
-txt = sprintf('Theta: %.3f rad', theta);
+txt = sprintf('Theta: %.3f rad \n Rel angle: %.3f rad', theta, relative_angle_shin_rod);
 set(handles.text, 'String', txt);
 
 % update_viualization(theta);

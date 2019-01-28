@@ -15,5 +15,6 @@ if (~isfile('../data/leg_geometry_stroke.csv'))
 end
 
 pivots_stroke = csvread('../data/leg_geometry_stroke.csv', 1, 0);
+pivots_cad = csvread('../data/leg_geometry.csv', 1, 0);
 
 leg_slider();
