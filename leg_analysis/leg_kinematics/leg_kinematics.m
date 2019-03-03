@@ -10,21 +10,37 @@ close all; clear; clc;
 
 run_visualization = false;
 
+n = 2500;  % number of evaluations
+upper_angle_limit = 3.122; % 3.122
+lower_angle_limit = -1.5; % 1.5
 scaling = 1.5;
 
-A = [-0.024330, -0.015363];
-B = [0, 0]; % origin
-C = [0.038243, 0.011044];
-D = [0.008843, -0.001726];
-F = [-0.007718, 0.000153];
-G = [0.064137, 0.0245630];
-H = [0.043186, 0.0247990];
-K = [0.029413, 0.008778];
-L = [-0.04621, -0.067287];
-M = [-0.056208, -0.067095];
-P_0 = [0.00014, -0.07271];
+A = [-0.001830, 0.021353];
+B = [0.022500, 0.036716];
+C = [0.060743, 0.047760];
+D = [0.031343, 0.034990];
+F = [0.014782, 0.036869];
+G = [0.086637, 0.061279];
+H = [0.065686, 0.061515];
+K = [0.051913, 0.045494];
+L = [-0.023710, -0.030571];
+M = [-0.033708, -0.030379];
+P_0 = [0.022640, -0.035994];
 
-% scale geometry
+% coordinate transformation s.t. B = [0, 0]
+A = A - B;
+C = C - B;
+D = D - B;
+F = F - B;
+G = G - B;
+H = H - B;
+K = K - B;
+L = L - B;
+M = M - B;
+P_0 = P_0 - B;
+B = B - B; 
+
+%% scale geometry
 A = scaling * A;
 B = scaling * B;
 C = scaling * C;
@@ -37,7 +53,22 @@ L = scaling * L;
 M = scaling * M;
 P_0 = scaling * P_0;
 
-% Link lengths
+pivots = zeros(1, 11, 2);
+pivots(1, 1, :) = A;
+pivots(1, 2, :) = B;
+pivots(1, 3, :) = C;
+pivots(1, 4, :) = D;
+pivots(1, 5, :) = F;
+pivots(1, 6, :) = G;
+pivots(1, 7, :) = H;
+pivots(1, 8, :) = K;
+pivots(1, 9, :) = L;
+pivots(1, 10, :) = M;
+pivots(1, 11, :) = P_0;
+
+% visualize_leg(pivots)
+
+%% Link lengths
 a_1 = norm(F-B);
 a_2 = norm(D-B);
 b_1 = norm(L-G);
@@ -64,7 +95,7 @@ epsilon_0 = atan(A(2) / A(1));
 link_angles = [alpha_1, beta_1, beta_2, gamma_1, delta_1, epsilon_0];
 
 % Initial angle
-t_1 = atan2(F(2), F(1));
+t_1_0 = atan2(F(2), F(1));
 l = H-F;
 t_2_0 = atan2(l(2), l(1));
 l = C-H;
@@ -102,10 +133,6 @@ eqns = [
 vars = [t_2 t_3 t_4 t_5 t_6 t_7];
 init_guess = [t_2_0, t_3_0, t_4_0, t_5_0, t_6_0, t_7_0];
 
-
-n = 2500;  % number of evaluations
-upper_angle_limit = 3.13; % 3.122
-lower_angle_limit = -1.0; % 1.5
 input_angles = linspace(upper_angle_limit, lower_angle_limit, n);
 joint_angles = zeros(n, 7);
 
@@ -163,6 +190,7 @@ end
 
 jacobian = (d_matrix * y) / (12 * d_theta);
 
+%% Store kinematics look up table
 
 % write forward kinematics to file
 forward_kinematics_file = '../data/forward_kinematics.csv';
