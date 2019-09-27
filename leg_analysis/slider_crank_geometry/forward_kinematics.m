@@ -13,6 +13,6 @@ function [z] = forward_kinematics(theta, lc, lr)
 % Subfunctions: none
 % MAT-files required: none   
 
-z = - lc*sin(theta) - (lr^2 - lc^2 + (lc * cos(theta))^2)^0.5;
+z = - lc*sin(theta) - (lr^2 - lc^2 + (lc * sin(theta))^2)^0.5;
 
 end

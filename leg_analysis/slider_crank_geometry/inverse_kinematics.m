@@ -1,4 +1,4 @@
-function [theta] = inverse_kinematics(z, lc, lr)
+ function [theta] = inverse_kinematics(z, lc, lr)
 %inverse_kinematics - Calculate crank angle based on leg extension
 
 % % Inputs:

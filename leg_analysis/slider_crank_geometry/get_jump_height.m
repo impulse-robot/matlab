@@ -16,7 +16,7 @@ function [jump_height] = get_jump_height(mass, length_crank, length_pushrod, num
 % MAT-files required: none   
 
 % time step
-t_d = 0.001;    % [s]
+t_d = 0.0001;    % [s]
 gravity = 9.81; % [m/s^2]
 has_contact = true;
 
@@ -53,7 +53,7 @@ theta_dot_0 = 0;
 
 
 % initial condition  
-z_0 = forward_kinematics(theta_0, length_crank, length_pushrod);
+z_0 = -forward_kinematics(theta_0, length_crank, length_pushrod);
 z_dot_0 = 0;
 z_dot_dot_0 = 0;
 
@@ -70,7 +70,7 @@ i = 1;
 
 while true
     
-    if (i > 10000)
+    if (i > 100000)
         break
     end
    
@@ -84,14 +84,14 @@ while true
     
     % solve differential equations
     if (has_contact)        
-        foot_force_current = motor_torque(20, theta_dot(i) * gear_reduction, u_cell, n_cell, R, kv, kt, t_max) * gear_reduction / jacobian
+        foot_force_current = motor_torque(20, theta_dot(i) * gear_reduction, u_cell, n_cell, R, kv, kt, t_max) * gear_reduction / jacobian;
     else
         foot_force_current = 0;
     end
     
     z_dot_dot_next =  foot_force_current / mass_total - gravity;
-    z_dot_next = z_dot(i) + t_d * z_dot_dot(i);
-    z_next = z(i) + t_d * z_dot(i);
+    z_dot_next = z_dot(i) + t_d * z_dot_dot_next;
+    z_next = z(i) + t_d * z_dot_next;
     
     
     
