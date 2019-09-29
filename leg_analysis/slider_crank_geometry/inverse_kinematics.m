@@ -13,6 +13,8 @@
 % Subfunctions: none
 % MAT-files required: none   
 
-theta = asin( (-lc^2 + lr^2 - z^2) / (2 * lc * z) );
+% theta = asin( (-lc^2 + lr^2 - z^2) / (2 * lc * z) );
+
+theta = -asin((lc^2 - lr^2 + z^2)/(2*lc*z));
 
 end

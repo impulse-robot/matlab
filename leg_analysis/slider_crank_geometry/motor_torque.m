@@ -25,7 +25,7 @@ if t_desired>max_torque
     t_desired = max_torque;
 end
 
-Ui = ke * angular_velocity;
+Ui = ke * abs(angular_velocity);
 
 if Ui >= U
     t_actual = 0;
