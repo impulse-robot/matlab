@@ -13,8 +13,8 @@ close all; clear; clc;
 % roll direction.
 %% parameters
 
-m_b = 0.3; % mass of body [kg]
-m_l = 0.1; % mass of leg [kg]
+m_b = 1.0; % mass of body [kg]
+m_l = 0.3; % mass of leg [kg]
 g = 9.81; % gravity [N/kg]
 
 % dimensions body [m]
@@ -94,15 +94,15 @@ l_roll_yaw = sqrt(l_yaw^2 + l_roll^2);
 
 
 %% visualization
-if ~isfile('../leg_analysis/data/leg_geometry_stroke.csv') 
+if ~isfile('../leg_analysis/salto_geometry/data/leg_geometry_stroke.csv') 
     disp('-- Did not find leg_geometry file')
     disp('-- Running leg_kinemtics script...(this could take a minute)')
-    run('../leg_kinematics/leg_kinematics.m')
+    run('../leg_analysis/salto_geometry/leg_kinematics/leg_kinematics.m')
     close all; clear; clc
     disp('-- leg_kinematics script finished.')
 end
 
-leg_geometry = csvread('../leg_analysis/data/leg_geometry_stroke.csv', 1, 0);
+leg_geometry = csvread('../leg_analysis/salto_geometry/data/leg_geometry_stroke.csv', 1, 0);
 
 extension = 50; % extension for visualization [%]
 P_y = (leg_geometry(end, 22) - leg_geometry(1, 22)) * extension / 100 + leg_geometry(1, 22);
