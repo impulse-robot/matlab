@@ -14,6 +14,8 @@ function [joint_positions] = get_joint_positions(q)
 
 global L_F L_R L_C 
 
+syms phi theta real
+
 FT_sym = [0; 0];
 
 RF_sym = [-L_F * sin(phi); 
@@ -33,8 +35,7 @@ RF = double(subs(RF_sym, [phi, theta] , [q(1), q(3)]));
 CR = double(subs(CR_sym, [phi, theta] , [q(1), q(3)]));
 MC = double(subs(MC_sym, [phi, theta] , [q(1), q(3)]));
 
-
-
+joint_positions = [FT.'; RF.'; CR.'; MC.'];
 
 end
 
