@@ -18,8 +18,8 @@ syms phi theta real
 
 FT_sym = [0; 0];
 
-RF_sym = [-L_F * sin(phi); 
-    L_F * cos(phi)];
+RF_sym = [0; 
+        L_F];
 
 CR_sym = [-L_C * cos(theta) * cos(phi) - (L_F + L_R * sqrt(1 - (L_C/L_R * cos(theta))^2)) * sin(phi);
         -L_C * cos(theta) * sin(phi) + (L_F + L_R * sqrt(1 - (L_C/L_R * cos(theta))^2)) * cos(phi)];

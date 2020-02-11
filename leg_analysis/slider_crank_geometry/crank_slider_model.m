@@ -43,22 +43,6 @@ syms l_f l_r l_c real positive
 % syms m_f m_r m_c m_b real positive
 % syms I_f I_r I_c I_b real positive
 
-% phi = sym('phi', 'real');
-% theta = sym('theta', 'real');
-% phi_dot = sym('phi_dot', 'real');
-% theta_dot  = sym('theta_dot', 'real');
-% l_f  = sym('l_f', 'real');
-% I_f  = sym('I_f', 'real');
-% m_f  = sym('m_f', 'real');
-% l_r  = sym('l_r', 'real');
-% I_r  = sym('I_r', 'real');
-% m_r  = sym('m_r', 'real');
-% l_c  = sym('l_c', 'real');
-% I_c  = sym('I_c', 'real');
-% m_c  = sym('m_c', 'real');
-% I_b  = sym('I_b', 'real');
-% m_b  = sym('m_b', 'real');
-
 
 % Positions in inertial frame I
 % I_r_f = [-L_F/2 * sin(phi); 
@@ -128,30 +112,17 @@ q_dot = [phi_dot; theta_dot];
 
 T = 1 / 2 * q_dot.' * (J_P_f.' * M_F * J_P_f + J_R_f.' * I_F * J_R_f + J_P_r.' * M_R * J_P_r + J_R_r.' * I_R * J_R_r + J_P_c.' * M_C * J_P_c + J_R_c.' * I_C * J_R_c + J_P_b.' * M_B * J_P_b + J_R_c + J_R_b.' * I_B * J_R_b) * q_dot;
 
-% T_test = double(subs(T, [phi, theta, phi_dot, theta_dot] , [0, 0, 1, 0]));
-
 % Potential energy
 g_acc = 9.81;                         % [m/s^2]
 U = (I_r_f(2) * M_F + I_r_r(2) * M_R + I_r_c(2) * M_C + I_r_b(2) * M_B) * g_acc;
 
 L = T - U;
 
-% d_L_d_phi_dot = diff(L, phi_dot);
-% d_L_d_theta_dot = diff(L, theta_dot(t));
-% d_L_d_q_dot = [d_L_d_phi_dot; d_L_d_theta_dot(t)];
-
-% d_L_d_phi = diff(L, phi);
-% d_L_d_theta = diff(L, theta);
-% d_L_d_q = [d_L_d_phi; d_L_d_theta];
-
-% d_L_d_t = 
-
 X = {phi, phi_dot, theta, theta_dot};
 Q_i = {0, 0};
 Q_e = {thrust, tau};
 R = 0;
 par = {};
-% par = {l_f, l_r, l_c, m_f, m_r, m_c, m_b, I_f, I_r, I_c, I_b };
 VF = EulerLagrange(L, X, Q_i, Q_e, R, par, 'm', 'crank_slider_equations_of_motion');
 
 
@@ -159,9 +130,6 @@ VF = EulerLagrange(L, X, Q_i, Q_e, R, par, 'm', 'crank_slider_equations_of_motio
 
 t_span = [0 10];
 Y0 = [0, 0, pi/2 - 0.001, 0];
-% [t, Y] = ode45(@crank_slider_equations_of_motion, t_span, Y0, 5);
-% [t, Y] = ode45(@(t,y) crank_slider_equations_of_motion(t,y,5), t_span, Y0);
-
 
 time_step = 0.0001;
 
@@ -185,7 +153,7 @@ while (true)
     
     % control input
     thrusterForce = -kp_thrust * Q_last(1) - kd_thrust * Q_last(2);
-    motorTorque = 18;
+    motorTorque = 8;
     
     t_current = t_last + time_step;
     t_last = t_current;
