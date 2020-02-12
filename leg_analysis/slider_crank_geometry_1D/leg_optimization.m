@@ -19,7 +19,7 @@ run_optimization = false;
 calc_joint_forces = true;
 
 % store optimization results
-store_results = false;
+store_results = true;
 
 %% Model Parameters
 length_body = 0.08;
@@ -225,9 +225,9 @@ if (run_optimization)
     mp_opt = get_optimal_model_parameter(jump_heights_valid, crank_lengths_square, pushrod_lengths_square, length_body, length_foot, radius_foot, mass_body_empty, safety_factor);
     
     if (store_results)
-        save(strcat('model_parameter_optimized_', num2str(N), '.mat'), 'mp_opt');
-        save(strcat('jump_heights_square_N_', num2str(N),'.mat'), 'jump_heights_square');
-        save(strcat('jump_heights_valid_N_', num2str(N),'.mat'), 'jump_heights_valid');
+        save(strcat('data/model_parameter_optimized_', num2str(N), '.mat'), 'mp_opt');
+        save(strcat('data/jump_heights_square_N_', num2str(N),'.mat'), 'jump_heights_square');
+        save(strcat('data/jump_heights_valid_N_', num2str(N),'.mat'), 'jump_heights_valid');
     end
     
     print_optimal_model_parameter(mp_opt);
@@ -237,10 +237,10 @@ else   % not running optimization
     
     % load optimized data
     disp('Reading optimized model parameters from file');
-    load(strcat('model_parameter_optimized_', num2str(N), '.mat'), 'mp_opt');
+    load(strcat('data/model_parameter_optimized_', num2str(N), '.mat'), 'mp_opt');
     
     disp('Reading jump heights from file');
-    load(strcat('jump_heights_square_N_', num2str(N),'.mat'), 'jump_heights_square');
+    load(strcat('data/jump_heights_square_N_', num2str(N),'.mat'), 'jump_heights_square');
     
     % Shorter leg extension
     jump_heights_valid = get_valid_jump_heights(jump_heights_square, crank_lengths_square, pushrod_lengths_square, max_leg_extension);
@@ -323,73 +323,62 @@ power_lin = torque_lin .* theta_dot_lin;
 foot_force_lin = 1./jacobian_body(theta_lin, mp_opt.length_crank, mp_opt.length_pushrod) .* torque_lin;
 
 
-
 if (calc_joint_forces)
-
-    [joint_forces_crank_pushrod, joint_forces_body_crank, ...
-        joint_forces_body_linear_guide, joint_forces_pushrod_linear_guide, ...
-        joint_forces_body_external] = ...
-        get_joint_forces(t_lin, torque_lin, theta_lin, mp_opt);
     
-    y_upper_limit = 300;
-    y_lower_limit = -300;
+    worst_case = true;
     
-    figure('name', 'Joint Forces')
-    subplot(3, 2, 1);
-    plot(t_lin, joint_forces_body_crank, 'LineWidth', 3);
-    hold on;
-    title('Joint Forces on Body by Crank');
-    ylabel('F [N]');
-    xlabel('time [s]');
-    ylim([y_lower_limit, y_upper_limit]);
-    grid on;
+    [joint_forces_crank_pushrod, joint_forces_crank_body, ...
+        joint_forces_body_crank, joint_forces_body_linear_guide, ...
+        joint_forces_pushrod_linear_guide, joint_forces_pushrod_crank, ...
+        joint_forces_linear_guide_body, joint_forces_linear_guide_pushrod, ...
+        joint_forces_linear_guide_ground] =  ...
+        get_joint_forces(t_lin, torque_lin, theta_lin, mp_opt, worst_case);
     
-    subplot(3, 2, 2)
-    plot(t_lin, joint_forces_crank_pushrod, 'LineWidth', 3);
-    hold on;
-    title('Joint Forces on Crank by Pushrod');
-    ylabel('F [N]');
-    xlabel('time [s]');
-    ylim([y_lower_limit, y_upper_limit]);
-    grid on;
+    joint_forces_linear_guide_lower_joint = joint_forces_linear_guide_pushrod + joint_forces_linear_guide_ground;
     
-    subplot(3, 2, 3)
-    plot(t_lin, joint_forces_body_linear_guide, 'LineWidth', 3);
-    hold on;
-    title('Joint Forces on Body by Linear Guide');
-    ylabel('F [N]');
-    xlabel('time [s]');
-    ylim([y_lower_limit, y_upper_limit]);
-    grid on;
+    visualize_joint_forces(theta_lin, joint_forces_crank_pushrod, joint_forces_crank_body, ...
+        joint_forces_body_crank, joint_forces_body_linear_guide, ...
+        joint_forces_pushrod_linear_guide, joint_forces_pushrod_crank, ...
+        joint_forces_linear_guide_body, joint_forces_linear_guide_lower_joint, ...
+        worst_case);
     
-    subplot(3, 2, 4)
-    plot(t_lin, joint_forces_pushrod_linear_guide, 'LineWidth', 3);
-    hold on;
-    title('Joint Forces on Pushrod by Linear Guide');
-    ylabel('F [N]');
-    xlabel('time [s]');
-    ylim([y_lower_limit, y_upper_limit]);
-    grid on;
     
-    subplot(3, 2, 5)
-    plot(t_lin, joint_forces_body_external, 'LineWidth', 3);
-    hold on;
-    title('Joint Forces on Body by External');
-    ylabel('F [N]');
-    xlabel('time [s]');
-    ylim([y_lower_limit, y_upper_limit]);
-    grid on;
     
+    if (store_results)
+        save(strcat('data/joint_forces_N_', num2str(N), 'body_at_motor_joint.mat'), 'joint_forces_body_crank');
+        save(strcat('data/joint_forces_N_', num2str(N), 'body_at_linear_joint.mat'), 'joint_forces_body_linear_guide');
+        save(strcat('data/joint_forces_N_', num2str(N), 'crank_at_upper_joint.mat'), 'joint_forces_crank_body');
+        save(strcat('data/joint_forces_N_', num2str(N), 'crank_at_lower_joint.mat'), 'joint_forces_crank_pushrod');
+        save(strcat('data/joint_forces_N_', num2str(N), 'pushrod_at_upper_joint.mat'), 'joint_forces_pushrod_crank');
+        save(strcat('data/joint_forces_N_', num2str(N), 'pushrod_at_lower_joint.mat'), 'joint_forces_pushrod_linear_guide');
+        save(strcat('data/joint_forces_N_', num2str(N), 'linear_guide_at_linear_joint.mat'), 'joint_forces_linear_guide_body');
+        save(strcat('data/joint_forces_N_', num2str(N), 'linear_guide_at_lower_joint.mat'), 'joint_forces_linear_guide_lower_joint');
+    end
+    
+else
+    
+    save(strcat('data/joint_forces_N_', num2str(N), 'body_at_motor_joint.mat'), 'joint_forces_body_crank');
+    save(strcat('data/joint_forces_N_', num2str(N), 'body_at_linear_joint.mat'), 'joint_forces_body_linear_guide');
+    save(strcat('data/joint_forces_N_', num2str(N), 'crank_at_upper_joint.mat'), 'joint_forces_crank_body');
+    save(strcat('data/joint_forces_N_', num2str(N), 'crank_at_lower_joint.mat'), 'joint_forces_crank_pushrod');
+    save(strcat('data/joint_forces_N_', num2str(N), 'pushrod_at_upper_joint.mat'), 'joint_forces_pushrod_crank');
+    save(strcat('data/joint_forces_N_', num2str(N), 'pushrod_at_lower_joint.mat'), 'joint_forces_pushrod_linear_guide');
+    save(strcat('data/joint_forces_N_', num2str(N), 'linear_guide_at_linear_joint.mat'), 'joint_forces_linear_guide_body');
+    save(strcat('data/joint_forces_N_', num2str(N), 'linear_guide_at_lower_joint.mat'), 'forces_linear_guide_lower_joint');
+    
+    visualize_joint_forces(theta_lin, joint_forces_crank_pushrod, joint_forces_crank_body, ...
+        joint_forces_body_crank, joint_forces_body_linear_guide, ...
+        joint_forces_pushrod_linear_guide, joint_forces_pushrod_crank, ...
+        joint_forces_linear_guide_body, joint_forces_linear_guide_lower_joint, ...
+        worst_case);
     
 end
 
 if (store_results)
     % limit foot forces
-    foot_force_lin(foot_force_lin>1e6)=1e6;
+    foot_force_lin(foot_force_lin>1e5)=1e5;
     foot_forces = [t_lin; foot_force_lin].';
-    save(strcat('foot_forces_N_', num2str(N), '.mat'), 'foot_forces');
-    
-    
+    save(strcat('data/foot_forces_N_', num2str(N), '.mat'), 'foot_forces');
     
 end
 

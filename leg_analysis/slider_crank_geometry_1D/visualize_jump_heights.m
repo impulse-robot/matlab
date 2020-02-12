@@ -197,9 +197,11 @@ elseif (m_reduction == 6)
     m_opt = 2;
 end
 
+plot_title = strcat('Motor: A80-', num2str(m_reduction), ' / Battery: ', num2str(n_cell), 's-Lipo');
+
 figure('name', 'Jump Height optimal Battery / Motor')
 surf(crank_lengths_square(:, :), pushrod_lengths_square(:, :), jump_heights_square(:, :, b_opt, m_opt));
-title('Motor: A80-9 / Battery: 4s-Lipo');
+title(plot_title);
 zlabel('Jump Height [m]');
 xlabel('Crank Length [m]');
 ylabel('Pushrod Length [m]');
