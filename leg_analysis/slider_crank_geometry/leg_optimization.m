@@ -92,5 +92,4 @@ limit_z_square = [0.0 2; 0.0 2];
 
 surf(limit_x_square, limit_y_square, limit_z_square, 'FaceColor', [0.9100    0.4100    0.1700], 'FaceAlpha', 0.5);
 
-
 colorbar

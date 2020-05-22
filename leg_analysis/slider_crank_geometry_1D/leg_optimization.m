@@ -32,10 +32,10 @@ safety_factor = 3;
 
 %% Define symbolic expressions
 syms tau theta theta_dot real
-syms l_f l_r l_c real positive
-syms m_f m_r m_c m_b real positive
-syms I_f I_r I_c I_b real positive
-syms t real positive
+syms l_f l_r l_c real 
+syms m_f m_r m_c m_b real 
+syms I_f I_r I_c I_b real 
+syms t real 
 
 
 %% Forward kinematics
@@ -254,8 +254,6 @@ end
 
 %% Run optimal model for visualization
 
-
-
 % visualize jump heights for different model configs
 visualize_jump_heights(crank_lengths_square, pushrod_lengths_square, jump_heights_square, max_leg_extension, mp_opt);
 
@@ -325,7 +323,7 @@ foot_force_lin = 1./jacobian_body(theta_lin, mp_opt.length_crank, mp_opt.length_
 
 if (calc_joint_forces)
     
-    worst_case = true;
+    worst_case = false;
     
     [joint_forces_crank_pushrod, joint_forces_crank_body, ...
         joint_forces_body_crank, joint_forces_body_linear_guide, ...
